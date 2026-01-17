@@ -4,7 +4,7 @@ import { agent } from './agent.js'
 const VALIDITY_MS = 365 * 24 * 60 * 60 * 1000 // credential validity time in milliseconds
 
 const config = {
-  "server_port": process.env.IPS_SERVER_PORT || 9627
+  "server_port": process.env.IPS_ISSUER_PORT || 4773
 }
 
 const app = express();
