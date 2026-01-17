@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>International Patient Summary</title>
+        <meta name="description" content="International Patient Summary in a digital wallet">
+        <meta name="author" content="Findynet">
+        <link rel="stylesheet" href="styles.css">
+        <link rel="icon" href="favicon.png">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="width">
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="International Patient Summary">
+        <meta property="og:url" content="https://ips-demo.trustregistry.eu/">
+        <meta property="og:image" content="https://ips-demo.trustregistry.eu/favicon.png">
+        <meta property="og:description" content="International Patient Summary in a digital wallet">
+        <script src="qrcode.min.js"></script>
+    </head>
+    <body>
+        <div id="box">
+            <img class="logo" src="favicon.png" alt="Findynet">
+            <div id="qrcode"></div>
+        </div>
+        <h1 lang="en">International Patient Summary</h1>
+        <div id="instructions"></div>
+        <form id="form">
+            <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
+            <label for="content" lang="en">Content:</label>
+            <textarea name="content" id="content" rows="30" cols="100"></textarea>
+            <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
+        </form>
+        <footer>
+            <p lang="en">See <a href="https://fhir.fi/hackathon/2026/finland/patient-access">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland">Finnish Health Data hackathon</a></p>
+        </footer>
+        <script>
+            STAR_COUNT = Math.floor((Math.random() * 10) + 5)
+            var qrcode = new QRCode("qrcode", { width: 256, height: 256 });
+
+            const f = document.getElementById('form')
+            const l = document.getElementById('box')
+            const o = document.getElementById('instructions')
+
+            document.getElementById('load').addEventListener('click', async () => {
+                const issueUrl = '/issue'
+                const issueParams = {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    // body: new URLSearchParams(new FormData(f))
+                    // body: new FormData(f)
+                    body: JSON.stringify({
+                        content: document.getElementById('content').value,
+                        protocol: document.getElementById('protocol').value
+                    })
+                }
+                const response = await fetch(issueUrl,  issueParams)
+                const respJson = await response.json()
+                if (!respJson.url) {
+                    alert('Error: ' + respJson.error)
+                }
+                else {
+                    qrcode.makeCode(respJson.url)
+                    l.classList.toggle('avattu')
+                    o.innerHTML = '<p lang="en">Scan the QR code with your wallet.</p>' +
+                        '<p lang="en">Download the Procivis One wallet:</p>' + '<p>' +
+                        '<a target="_blank" href="https://play.google.com/store/apps/details?id=ch.procivis.one.wallet.trial&pli=1">Android</a>' +
+                        ' | ' +
+                        '<a target="_blank" href="https://apps.apple.com/us/app/procivis-one-wallet/id6480111491">iOS</a>' +
+                        '</p>'
+                    const a = document.createElement('a')
+                    a.lang = 'fi'
+                    a.href = 'https://ips-verifier.sensotrend.fi/'
+                    a.className = 'block'
+                    a.textContent = "Go to Sensotrend IPS Verifier"
+                    o.appendChild(a)
+                    const back = document.createElement('a')
+                    back.lang = 'en'
+                    back.textContent = "Return"
+                    back.className = 'block'
+                    back.onclick = () => { 
+                        l.classList.toggle('opened')
+                        f.style.display = 'block'
+                        o.innerHTML = instructions
+                    }
+                    o.appendChild(back)
+                    const qrDiv = document.getElementById('qrcode')
+                    const img = qrDiv.querySelector('img')
+                    if (img) {
+                        const a = document.createElement('a')
+                        a.href = respJson.url
+                        qrDiv.appendChild(a)
+                        a.appendChild(img)
+                    }
+                    f.style.display = 'none'
+                }
+            })
+        </script>
+    </body>
+</html>

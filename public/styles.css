@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: 'Neue Haas', 'Neue Haas Grotesk Display Pro', 'Neue Haas Text Pro', neue-haas, Helvetica, 'Open Sans', Arial, Verdana, Calibri, 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
+  background-color: white;
+  color: #cc1237;
+  font-size: x-large;
+  line-height: 1.5;
+  margin: 0;
+  min-height: 100vh;
+  overflow: scroll;
+  padding: 5% 0 5em 0;
+  position: relative;
+  text-align: center;
+}
+h1 {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-optical-sizing: auto;
+  font-size: 2em;
+  font-style: normal;
+  font-weight: 800;
+}
+#box, #qrcode {
+  border-radius: 25px;
+  height: 306px;
+  padding: 25px;
+  width: 306px;
+}
+#box {
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+#box img {
+  height: 256px;
+  width: 256px;
+}
+#box .logo, #qrcode {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: 0.5s all;
+}
+#box .logo {
+  transform: rotate3d(0, 1, 0, 0);
+}
+#qrcode {
+  background-color: #FFF;
+  opacity: 0;
+  transform: rotate3d(0, 1, 0, 180deg);
+}
+#qrcode a img {
+  border-width: 0;
+}
+#box.opened .logo {
+  opacity: 0;
+  transform: rotate3d(0, 1, 0, 180deg);
+  z-index: 1;
+}
+#box.opened #qrcode {
+  opacity: 1;
+  transform: rotate3d(0, 1, 0, 0);
+  z-index: 2;
+}
+#instructions, form {
+  text-align: left;
+  margin: 1em auto;
+  max-width: 45em;
+  padding: 0 1em;
+  z-index: 2;
+}
+/*
+p+p {
+  text-indent: 1em;
+}
+*/
+q {
+  font-style: italic;
+}
+input {
+  font-size: larger;
+}
+label, .block, button {
+  display: block
+}
+.block label {
+  display: inline;
+}
+button {
+  background-color: #cc1237;
+  border-radius: 0.5em;
+  color: #FFF;
+  font-size: larger;
+  margin: 1em 0;
+  padding: 0.5em;
+}
+a {
+  color: #cc1237;
+  cursor: pointer;
+  text-decoration: underline;
+}
+a.block {
+  margin-top: 1em;
+}
+footer {
+  bottom: 0;
+  color: #cc1237;
+  font-style: normal;
+  font-weight: 600;
+  height: 5em;
+  line-height: 1.25;
+  padding: 2em 0 0 0;
+  position: absolute;
+  width: 100%;
+}
