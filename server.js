@@ -21,11 +21,52 @@ app.post('/issue', async (req, res) => {
   if (content && content.entry && Array.isArray(content.entry)) {
     for (const entry of content.entry) {
       if (entry.resource && entry.resource.resourceType == 'Composition') {
-        for (const section of entry.resource.section) {
-          if (!section.title || !section.text || !section.text.div) {
+        const comp = entry.resource
+        if (comp.text && comp.text.div) {
+          claimValues['Text'] = comp.text.div.replace(/<[^>]+>/g, '')
+        }
+        if (comp.identifier && comp.identifier.value) {
+          claimValues['Identifier'] = comp.identifier.value
+        }
+        else if (comp.identifier && comp.identifier.at(0) && comp.identifier.at(0).value) {
+          claimValues['Identifier'] = comp.identifier.at(0).value
+        }
+        if (comp.subject) {
+          claimValues['Subject'] = resolveUUIDReference(content, comp.subject.reference)
+        }
+        if (comp.date) {
+          claimValues['Date'] = comp.date
+        }
+        if (comp.author && comp.author.reference) {
+          claimValues['Author'] = resolveUUIDReference(content, comp.author.reference)
+        }
+        else if (comp.author && comp.author.length && comp.author.length > 0) {
+          const authors = []
+          for (const author of comp.author) {
+            authors.push(resolveUUIDReference(content, author.reference))
+          }
+          claimValues['Author'] = authors.join('; ')
+        }
+        if (comp.event && comp.event.length && comp.event.length > 0) {
+          const events = []
+          for (const event of comp.event) {
+            if (event.code && event.code.coding && event.code.coding.length && event.code.coding.length > 0) {
+              events.push(event.code.coding.at(0).code)
+            }
+          }
+          claimValues['event'] = events.join('; ')
+        }
+        if (comp.title) {
+          claimValues['Title'] = comp.title
+        }
+        for (const section of comp.section) {
+          if (!section.code || !section.text || !section.text.div) {
             continue
           }
-          const key = "section" + section.title.replace(/\s+/g, '')
+          const key = section?.code?.coding?.at(0)?.code
+          if (!key) {
+            continue
+          }
           claimValues[key] = section.text.div.replace(/<[^>]+>/g, '')
         }
       }
@@ -89,3 +130,23 @@ app.get('/status/:id', async (req, res) => {
 app.listen(config.server_port, () => {
   console.log(`Server is running on port ${config.server_port}`)
 })
+
+function resolveUUIDReference(ipsDocument, uuid) {
+  let value = ''
+  for (const entry of ipsDocument.entry) {
+    if (entry.fullUrl && entry.fullUrl == uuid) {
+      console.log('Found reference for ', uuid, entry.resource.name)
+      if (entry.resource.name && entry.resource.name[0] && entry.resource.name[0].family) {
+        value += entry.resource.name[0].family
+      }
+      if (entry.resource.name && entry.resource.name[0] && entry.resource.name[0].given) {
+        value += ', ' + entry.resource.name[0].given.join(' ')
+      }
+      console.log('Name: ', value)
+    }
+  }
+  if (!value) {
+    console.log('No reference found for ', uuid)
+  }
+  return value
+}
