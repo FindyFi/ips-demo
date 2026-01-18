@@ -48,6 +48,9 @@ async function initOrg() {
   }
   if (!o) {
     o = await agent.createOrganization({ name: config.issuer_url });
+    if (!o) {
+      throw new Error(`Failed to initialize organization)`);
+    }
   }
   return o;
 }
@@ -67,6 +70,9 @@ async function initKey() {
       storageParams: {},
     };
     key = await agent.createKey(data);
+    if (!key) {
+      throw new Error(`Failed to initialize key)`);
+    }
     console.log("New key: ", key);
   }
   return key?.id;
@@ -101,13 +107,18 @@ async function initDID(key) {
       },
     };
     const identifier = await agent.createDID(data);
+    if (!identifier) {
+      throw new Error(`Failed to initialize DID)`);
+    }
+
     return identifier?.did?.id;
   }
 }
 
 async function initCredentialSchema() {
+
   const list = await agent.getCredentialSchemas({
-    name: "IPS",
+    name: config.vct_id,
     format: "SD_JWT_VC",
   });
   const id = list?.values?.at(0)?.id || null; // use the first returned
@@ -115,11 +126,18 @@ async function initCredentialSchema() {
   if (id) {
     schema = await agent.getCredentialSchema(id);
   } else {
+    const oldList = await agent.getCredentialSchemas({
+      schemaId: config.vct_url,
+      format: "SD_JWT_VC",
+    });
+    for (const item of oldList?.values || []) {
+      await agent.deleteCredentialSchema(item.id);
+    }
     let credentialSchema = {
-      name: "IPS",
+      name: config.vct_id,
       format: "SD_JWT_VC",
       schemaType: "ProcivisOneSchema2024",
-      schemaId: config.vct_id || config.vct_url,
+      schemaId: config.vct_url,
       externalSchema: true,
       revocationMethod: "NONE",
       walletStorageType: "SOFTWARE",
@@ -128,7 +146,7 @@ async function initCredentialSchema() {
       claims: [],
       layoutProperties: {
         background: {
-          color: "#0d0342",
+          color: "#FFFFFF",
         },
         logo: {
           image:
@@ -150,6 +168,9 @@ async function initCredentialSchema() {
       });      
     }
     const res = await agent.createCredentialSchema(credentialSchema);
+    if (!res) {
+      throw new Error(`Failed to initialize credential schema)`);
+    }
     schema = await agent.getCredentialSchema(res.id);
   }
   return schema;
@@ -182,6 +203,9 @@ async function initVerificationSchema() {
       });
     });
     schema = await agent.createVerificationSchema(proofSchema);
+    if (!schema) {
+      throw new Error(`Failed to initialize verification schema)`);
+    }
   }
   return schema;
 }
