@@ -39,32 +39,12 @@ h1 {
   height: 256px;
   width: 256px;
 }
-#box .logo, #qrcode {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transition: 0.5s all;
-}
-#box .logo {
-  transform: rotate3d(0, 1, 0, 0);
-}
 #qrcode {
   background-color: #FFF;
-  opacity: 0;
-  transform: rotate3d(0, 1, 0, 180deg);
+  margin: 1em auto;
 }
 #qrcode a img {
   border-width: 0;
-}
-#box.opened .logo {
-  opacity: 0;
-  transform: rotate3d(0, 1, 0, 180deg);
-  z-index: 1;
-}
-#box.opened #qrcode {
-  opacity: 1;
-  transform: rotate3d(0, 1, 0, 0);
-  z-index: 2;
 }
 #instructions, form {
   text-align: left;
@@ -89,6 +69,11 @@ label, .block, button {
 }
 .block label {
   display: inline;
+}
+textarea {
+  overflow: scroll;
+  white-space: nowrap;
+  width: 98%;
 }
 button {
   background-color: #cc1237;
