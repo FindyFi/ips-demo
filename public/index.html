@@ -19,24 +19,30 @@
         <script src="qrcode.min.js"></script>
     </head>
     <body>
-        <div id="box">
-            <img class="logo" src="favicon.png" alt="Findynet">
+        <header>
+            <div id="box">
+                <img class="logo" src="favicon.png" alt="IPS Logo">
+            </div>
+            <h1 lang="en">International Patient Summary</h1>
+        </header>
+        <main>
+            <form id="form">
+                <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
+                <label for="content" lang="en">Content:</label>
+                <textarea name="content" id="content" rows="30" cols="100"></textarea>
+                <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
+            </form>
             <div id="qrcode"></div>
-        </div>
-        <h1 lang="en">International Patient Summary</h1>
-        <div id="instructions"></div>
-        <form id="form">
-            <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
-            <label for="content" lang="en">Content:</label>
-            <textarea name="content" id="content" rows="30" cols="100"></textarea>
-            <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
-        </form>
+            <div id="instructions"></div>
+        </main>
         <footer>
             <p lang="en">See <a href="https://fhir.fi/hackathon/2026/finland/patient-access">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland">Finnish Health Data hackathon</a></p>
         </footer>
         <script>
-            STAR_COUNT = Math.floor((Math.random() * 10) + 5)
-            var qrcode = new QRCode("qrcode", { width: 256, height: 256 });
+
+            const qrcode = new QRCode("qrcode", { width: 256, height: 256 });
+
+            const ips_bundle = './IPS_IG-bundle-01.json'
 
             const f = document.getElementById('form')
             const l = document.getElementById('box')
@@ -82,6 +88,7 @@
                     back.textContent = "Return"
                     back.className = 'block'
                     back.onclick = () => { 
+                        qrcode.clear()
                         l.classList.toggle('opened')
                         f.style.display = 'block'
                         o.innerHTML = instructions
@@ -98,6 +105,14 @@
                     f.style.display = 'none'
                 }
             })
+
+            window.onload = () => {
+                const bundle = fetch(ips_bundle)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('content').value = JSON.stringify(data, null, 2)
+                    })
+            }
         </script>
     </body>
 </html>
