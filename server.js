@@ -261,7 +261,7 @@ function htmlToText(html) {
     }
   }
   text += '\n' + html.replace(/<[^>]+>/g, '\n')
-  return text.replace(/\r+/g, '').replace(/[\n\s]+/g, '\n').replace(/^\n/g, '').trim()
+  return text.replace(/\r+/g, '').replace(/[\s]*\n[\n\s]*/g, '\n').replace(/^\n/g, '').trim()
 }
 
 function resolveUUIDReference(ipsDocument, uuid) {
