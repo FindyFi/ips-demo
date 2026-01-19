@@ -205,7 +205,7 @@ app.get('/authcallback', async (req, res) => {
     <meta charset="UTF-8">
     <script>
       const patientData = ${JSON.stringify(patientData, null, 2)};
-      window.opener.postMessage({ type: 'PATIENT_DATA', data: patientData }, '*');
+      window.opener.postMessage(patientData, '*');
       window.close();
     </script>
   </head>

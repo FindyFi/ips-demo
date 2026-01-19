@@ -120,6 +120,7 @@
                 if (event.data) {
                     console.log("Received message:", event.data);
                     document.getElementById('content').value = JSON.stringify(event.data, null, 2)
+                    document.getElementById('load').click()
                 }
             }, false);
 
