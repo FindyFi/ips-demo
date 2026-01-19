@@ -153,7 +153,6 @@ app.get('/epicurl', async (req, res) => {
 })
 
 app.get('/authcallback', async (req, res) => {
-  console.log('Auth callback received:', req.query)
   if (req.query.code) {
     const params = {
      grant_type: 'authorization_code',
@@ -176,7 +175,6 @@ app.get('/authcallback', async (req, res) => {
       return false
     }
     const tokenResponse = await result.json()
-    console.log('Token response:', tokenResponse)
     if (!tokenResponse.access_token || !tokenResponse.patient) {
       res.status(500).send('Authorization failed!')
       return false
@@ -184,8 +182,8 @@ app.get('/authcallback', async (req, res) => {
     const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
     const access_token = tokenResponse.access_token
     const ipsUrl = config.epic_api_endpoint + '/FHIR/DSTU2/Patient/' +
-      encodeURIComponent(patient) +
-      `/$summary?profile=http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips`
+      encodeURIComponent(patient) // +
+      // `/$summary?profile=http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips`
     const fhirResult = await fetch(ipsUrl, {
       method: 'GET',
       headers: {
@@ -228,7 +226,6 @@ function htmlToText(html) {
 
   const lis = html.match(/<li[\s\S]*?<\/li>/gi)
   if (lis) {
-    console.log(`Found ${lis.length} list items in HTML content`)
     for (const li of lis) {
       const liText = li.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
       html = html.replace(li, liText)
@@ -270,18 +267,13 @@ function resolveUUIDReference(ipsDocument, uuid) {
   let value = ''
   for (const entry of ipsDocument.entry) {
     if (entry.fullUrl && entry.fullUrl == uuid) {
-      console.log('Found reference for ', uuid, entry.resource.name)
       if (entry.resource.name && entry.resource.name[0] && entry.resource.name[0].family) {
         value += entry.resource.name[0].family
       }
       if (entry.resource.name && entry.resource.name[0] && entry.resource.name[0].given) {
         value += ', ' + entry.resource.name[0].given.join(' ')
       }
-      console.log('Name: ', value)
     }
-  }
-  if (!value) {
-    console.log('No reference found for ', uuid)
   }
   return value
 }
