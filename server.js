@@ -203,6 +203,8 @@ app.get('/authcallback', async (req, res) => {
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <title>IPS Demo - Epic Patient Data</title>
+    <link rel="icon" href="favicon.png">
     <script>
       const patientData = ${JSON.stringify(patientData, null, 2)};
       window.opener.postMessage(patientData, '*');
@@ -210,7 +212,7 @@ app.get('/authcallback', async (req, res) => {
     </script>
   </head>
   <body>
-    <pre></pre>
+    <pre>${JSON.stringify(patientData, null, 2)}</pre>
   </body>
 </html>`
     res.send(html)
