@@ -9,8 +9,7 @@ body {
   max-width: 45em;
   min-height: 100vh;
   overflow: scroll;
-  padding: 5% 0 5em 0;
-  position: relative;
+  padding: 2em 0 2em 0;
 }
 h1 {
   font-family: "Hanken Grotesk", sans-serif;
@@ -102,13 +101,9 @@ a.block {
   margin-top: 1em;
 }
 footer {
-  bottom: 0;
   color: #cc1237;
   font-style: normal;
-  font-weight: 600;
-  height: 5em;
+  font-weight: normal;
   line-height: 1.25;
-  padding: 2em 0 0 0;
-  position: absolute;
   width: 100%;
 }
