@@ -182,8 +182,8 @@ app.get('/authcallback', async (req, res) => {
     const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
     const access_token = tokenResponse.access_token
     const ipsUrl = config.epic_api_endpoint + '/FHIR/DSTU2/Patient/' +
-      encodeURIComponent(patient) // +
-      // `/$summary?profile=http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips`
+      encodeURIComponent(patient) +
+      `/$summary?profile=http://hl7.org/fhir/uv/ips/StructureDefinition/Composition-uv-ips`
     const fhirResult = await fetch(ipsUrl, {
       method: 'GET',
       headers: {
