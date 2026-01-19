@@ -23,9 +23,29 @@
             <div id="box">
                 <img class="logo" src="favicon.png" alt="IPS Logo">
             </div>
-            <h1 lang="en">International Patient Summary</h1>
+            <h1 lang="en">International Patient Summary demo</h1>
         </header>
         <main>
+            <div id="instructions">
+                <p lang="en">This service allows you to obtain your <a href="https://international-patient-summary.net/" target="_blank" rel="noopener">International Patient Summary</a> (IPS) as a digital credential in your wallet.</p>
+                <p lang="en">You can either</p>
+                <ul>
+                    <li lang="en">test the service using the pre-filled IPS bundle, or</li>
+                    <li lang="en">replace the content below with your an IPS bundle acquired elsewhere, or</li>
+                    <li lang="en">use the button below to log in to an Epic sandbox patient portal to fetch your IPS data.</li>
+                </ul>
+                <table lang="en">
+                    <caption lang="en">Epic Sandbox Patient Portal <a href="https://fhir.epic.com/Documentation?docId=testpatients" target="_blank" rel="noopener">Test Users</a></caption>
+                    <thead>
+                        <tr><th lang="en">Username</th><th lang="en">Password</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td lang="en">fhircamila</td><td lang="en">epicepic1!</td></tr>
+                        <tr><td lang="en">fhirderrick</td><td lang="en">epicepic1!</td></tr>
+                        <tr><td lang="en">fhirdesiree</td><td lang="en">epicepic1!</td></tr>
+                    </tbody>
+                </table>
+            </div>
             <form id="form">
                 <button type="button" id="epic"><span lang="en">Get your Epic Patient Data</span></button>
                 <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
@@ -34,10 +54,9 @@
                 <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
             </form>
             <div id="qrcode"></div>
-            <div id="instructions"></div>
         </main>
         <footer>
-            <p lang="en">See <a href="https://fhir.fi/hackathon/2026/finland/patient-access">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland">Finnish Health Data hackathon</a></p>
+            <p lang="en">Created in the <a href="https://fhir.fi/hackathon/2026/finland/patient-access" target="_blank" rel="noopener">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland" target="_blank" rel="noopener">Finnish Health Data hackathon</a></p>
         </footer>
         <script>
 
@@ -48,6 +67,7 @@
             const f = document.getElementById('form')
             const l = document.getElementById('box')
             const o = document.getElementById('instructions')
+            const instructions = o.innerHTML
 
             document.getElementById('load').addEventListener('click', async () => {
                 const issueUrl = '/issue'
@@ -78,12 +98,14 @@
                         ' | ' +
                         '<a target="_blank" href="https://apps.apple.com/us/app/procivis-one-wallet/id6480111491">iOS</a>' +
                         '</p>'
+/*
                     const a = document.createElement('a')
                     a.lang = 'fi'
                     a.href = 'https://ips-verifier.sensotrend.fi/'
                     a.className = 'block'
                     a.textContent = "Go to Sensotrend IPS Verifier"
                     o.appendChild(a)
+*/
                     const back = document.createElement('a')
                     back.lang = 'en'
                     back.textContent = "Return"
