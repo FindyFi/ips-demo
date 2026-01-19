@@ -27,6 +27,26 @@ export IPS_VCT_URL="https://ips.todiste.fi/credentials/v1/PatientSummary.json"
 export IPS_ISSUER_PORT=4773
 ```
 
+## EPIC integration
+
+If you have your own EPIC instance or if you are targeting a specific environment, set the
+environment variables accordingly.
+
+You can also use the EPIC sandbox by registering your client at [fhir.epic.com](https://fhir.epic.com/).
+The example variables below assume you're using the sandbox.
+
+```sh
+export EPIC_CLIENT_ID="<YOUR CLIENT ID>"
+export EPIC_CLIENT_SECRET="<YOUR CLIENT SECRET>"
+export EPIC_OAUTH_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize"
+export EPIC_TOKEN_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
+export EPIC_API_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/api"
+```
+
+### Testing the EPIC integration
+
+You can use the service as one of the EPIC [test patients](https://fhir.epic.com/Documentation?docId=testpatients).
+
 ## Running the service
 
 When you have the environment variables in place, you can start the service with the following commands:
@@ -44,23 +64,3 @@ npm install
 pm2 start --name 'IPS demo' server.js
 pm2 save
 ```
-
-## EPIC integration
-
-If you have your own EPIC instance or if you are targeting a specific environment, set the
-environment variables accordingly.
-
-You can also use the EPIC sandbox by registering your client at [fhir.epic.com](https://fhir.epic.com/).
-The example variables below assume you're using the sandbox.
-
-```sh
-export EPIC_CLIENT_ID="<YOUR CLIENT ID>"
-export EPIC_CLIENT_SECRET="<YOUR CLIENT SECRET>"
-export EPIC_TOKEN_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/oauth2/token"
-export EPIC_OAUTH_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/oauth2/authorize"
-export EPIC_API_ENDPOINT="https://fhir.epic.com/interconnect-fhir-oauth/api"
-```
-
-### Testing the EPIC integration
-
-You can use the service as one of the EPIC [test patients](https://fhir.epic.com/Documentation?docId=testpatients).
