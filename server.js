@@ -23,7 +23,7 @@ app.post('/issue', async (req, res) => {
       if (entry.resource && entry.resource.resourceType == 'Composition') {
         const comp = entry.resource
         if (comp.text && comp.text.div) {
-          claimValues['Text'] = comp.text.div.replace(/<[^>]+>/g, '')
+          claimValues['Text'] = htmlToText(comp.text.div)
         }
         if (comp.identifier && comp.identifier.value) {
           claimValues['Identifier'] = comp.identifier.value
@@ -67,7 +67,7 @@ app.post('/issue', async (req, res) => {
           if (!key) {
             continue
           }
-          claimValues[key] = section.text.div.replace(/<[^>]+>/g, '')
+          claimValues[key] = htmlToText(section.text.div)
         }
       }
     }
@@ -130,6 +130,49 @@ app.get('/status/:id', async (req, res) => {
 app.listen(config.server_port, () => {
   console.log(`Server is running on port ${config.server_port}`)
 })
+
+function htmlToText(html) {
+  let text = ''
+
+  const lis = html.match(/<li[\s\S]*?<\/li>/gi)
+  if (lis) {
+    console.log(`Found ${lis.length} list items in HTML content`)
+    for (const li of lis) {
+      const liText = li.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      html = html.replace(li, liText)
+    }
+  }
+
+  const tables = html.match(/<table[\s\S]*?<\/table>/gi)
+  if (tables) {
+    for (const table of tables) {
+      const headers = []
+      const ths = table.match(/<th[\s\S]*?<\/th>/gi)
+      if (ths) {
+        for (const header of ths) {
+          const headerText = htmlToText(header).replaceAll('\n', ' ').replace(/\s+/g, ' ').trim()
+          headers.push(headerText)
+        }
+      }
+      const rows = table.match(/<tr[\s\S]*?<\/tr>/gi)
+      if (rows) {
+        for (const row of rows) {
+          const tds = row.match(/<td[\s\S]*?<\/td>/gi)
+          if (tds && tds.length == headers.length) {
+            for (let i = 0; i < tds.length; i++) {
+              const cellText = htmlToText(tds[i]).replaceAll('\n', ' ').replace(/\s+/g, ' ').trim()
+              text += `${headers[i]}: ${cellText}\n`
+            }
+            text += '\n'
+          }
+        }
+      }
+      html = html.replace(table, '')
+    }
+  }
+  text += '\n' + html.replace(/<[^>]+>/g, '\n')
+  return text.replace(/\r+/g, '').replace(/[\n\s]+/g, '\n').replace(/^\n/g, '').trim()
+}
 
 function resolveUUIDReference(ipsDocument, uuid) {
   let value = ''
