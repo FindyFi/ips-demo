@@ -1,10 +1,15 @@
 import  express from "express";
 import { agent } from './agent.js'
-
-const VALIDITY_MS = 365 * 24 * 60 * 60 * 1000 // credential validity time in milliseconds
+import { randomBytes } from 'node:crypto';
 
 const config = {
-  "server_port": process.env.IPS_ISSUER_PORT || 4773
+  "server_host": process.env.IPS_ISSUER_HOST || '',
+  "server_port": process.env.IPS_ISSUER_PORT || 4773,
+  "client_id": process.env.EPIC_CLIENT_ID || '',
+  "client_secret": process.env.EPIC_CLIENT_SECRET || '',
+  "epic_token_endpoint": process.env.EPIC_TOKEN_ENDPOINT || '',
+  "epic_oauth_endpoint": process.env.EPIC_OAUTH_ENDPOINT || '',
+  "epic_api_endpoint": process.env.EPIC_API_ENDPOINT || '',
 }
 
 const app = express();
@@ -125,6 +130,90 @@ app.get('/status/:id', async (req, res) => {
     return true
   }
   res.status(500).json({ error: `Failed to check status for ${req.params.id}` })
+})
+
+app.get('/epicurl', async (req, res) => {
+  if (!config.epic_oauth_endpoint || !config.client_id || !config.epic_api_endpoint) {
+    res.status(500).json({ error: 'Epic configuration is missing' })
+    return false
+  }
+  const params = {
+    response_type: 'code',
+    client_id: config.client_id,
+    redirect_uri: `https://${config.server_host}/authcallback`,
+    state: randomBytes(16).toString('hex'),
+    // scope: 'patient/*.read openid fhirUser profile',
+    scope: 'openid',
+    aud: config.epic_api_endpoint,
+  }
+  const request = new URL(config.epic_oauth_endpoint)
+  request.search = new URLSearchParams(params).toString()
+  res.json({ url: request.toString() })
+  return true
+})
+
+app.get('/authcallback', async (req, res) => {
+  console.log('Auth callback received:', req.query)
+  if (req.query.code) {
+    const params = {
+     grant_type: 'authorization_code',
+      code: req.query.code,
+      redirect_uri: `https://${config.server_host}/authcallback`,
+      client_id: config.client_id
+    }
+    const result = await fetch(config.epic_token_endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams(params)
+    })
+    if (!result.ok) {
+      console.error(`HTTP error! status: ${result.status}`)
+      console.log(await result.text())
+      console.log(JSON.stringify(params, null, 2))
+      res.status(500).json({ error: 'Failed to obtain Epic access token' })
+      return false
+    }
+    const tokenResponse = await result.json()
+    console.log('Token response:', tokenResponse)
+    if (!tokenResponse.access_token || !tokenResponse.patient) {
+      res.status(500).send('Authorization failed!')
+      return false
+    }
+    const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
+    const access_token = tokenResponse.access_token
+    const fhirResult = await fetch(`${config.epic_api_endpoint}/FHIR/DSTU2/Patient/${patient}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${access_token}`,
+        'Accept': 'application/fhir+json'
+      }
+    })
+    if (!fhirResult.ok) {
+      console.error(`HTTP error! status: ${fhirResult.status}`)
+      console.log(await fhirResult.text())
+      res.status(500).send('Failed to obtain patient data from Epic!')
+      return false
+    }
+    const patientData = await fhirResult.json()
+    const html = ```<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <script>
+      const patientData = ${JSON.stringify(patientData, null, 2)};
+      window.opener.postMessage({ type: 'PATIENT_DATA', data: patientData }, '*');
+      window.close();
+    </script>
+  </head>
+  <body>
+    <pre></pre>
+  </body>
+</html>```
+    res.send(html)
+    return true
+  }
 })
 
 app.listen(config.server_port, () => {

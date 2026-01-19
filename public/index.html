@@ -27,6 +27,7 @@
         </header>
         <main>
             <form id="form">
+                <button type="button" id="epic"><span lang="en">Get your Epic Patient Data</span></button>
                 <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
                 <label for="content" lang="en">Content:</label>
                 <textarea name="content" id="content" rows="30" cols="100"></textarea>
@@ -105,6 +106,22 @@
                     f.style.display = 'none'
                 }
             })
+
+            document.getElementById('epic').addEventListener('click', async () => {
+                const loginUrl = await fetch('/epicurl').then(res => res.json())
+                if (loginUrl.url) {
+                    window.open(loginUrl.url, '_blank')
+                } else {
+                    alert('Error getting Epic login URL')
+                }
+            })
+
+            window.addEventListener("message", (event) => {
+                if (event.data) {
+                    console.log("Received message:", event.data);
+                    document.getElementById('content').value = JSON.stringify(event.data, null, 2)
+                }
+            }, false);
 
             window.onload = () => {
                 const bundle = fetch(ips_bundle)
