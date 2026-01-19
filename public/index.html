@@ -27,15 +27,15 @@
         </header>
         <main>
             <div id="instructions">
-                <p lang="en">This service allows you to obtain your <a href="https://international-patient-summary.net/" target="_blank" rel="noopener">International Patient Summary</a> (IPS) as a digital credential in your wallet.</p>
+                <p lang="en">This service allows you to obtain your <a href="https://international-patient-summary.net/" target="_blank" rel="noopener">International Patient Summary</a> as a digital credential in your wallet.</p>
                 <p lang="en">You can either</p>
                 <ul>
                     <li lang="en">test the service using the pre-filled IPS bundle, or</li>
                     <li lang="en">replace the content below with your an IPS bundle acquired elsewhere, or</li>
-                    <li lang="en">use the button below to log in to an Epic sandbox patient portal to fetch your IPS data.</li>
+                    <li lang="en">log in to <em>Epic on FHIR sandbox</em> to fetch your IPS data.</li>
                 </ul>
                 <table lang="en">
-                    <caption lang="en">Epic Sandbox Patient Portal <a href="https://fhir.epic.com/Documentation?docId=testpatients" target="_blank" rel="noopener">Test Users</a></caption>
+                    <caption lang="en">Epic on FHIR sandbox <a href="https://fhir.epic.com/Documentation?docId=testpatients" target="_blank" rel="noopener">Test Users</a></caption>
                     <thead>
                         <tr><th lang="en">Username</th><th lang="en">Password</th></tr>
                     </thead>
@@ -56,11 +56,11 @@
             <div id="qrcode"></div>
         </main>
         <footer>
-            <p lang="en">Created in the <a href="https://fhir.fi/hackathon/2026/finland/patient-access" target="_blank" rel="noopener">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland" target="_blank" rel="noopener">Finnish Health Data hackathon</a></p>
+            <p lang="en">Created by <a href="https://findynet.com" target="_blank" rel="noopener">Findynet</a> in the <a href="https://fhir.fi/hackathon/2026/finland/patient-access" target="_blank" rel="noopener">Patient Access Track</a> in the <a href="https://fhir.fi/hackathon/2026/finland" target="_blank" rel="noopener">Finnish Health Data hackathon</a>.</p>
+            <p lang="en">The source code is available on <a href="https://github.com/FindyFi/ips-demo" target="_blank" rel="noopener">GitHub</a>.</p>
+            <p lang="en">This service is a technical demonstration. It should not be used for real patient data. The service does not store any data but some information may remain in technical log files.</p>
         </footer>
         <script>
-
-            const qrcode = new QRCode("qrcode", { width: 256, height: 256 });
 
             const ips_bundle = './IPS_IG-bundle-01.json'
 
@@ -77,8 +77,6 @@
                         'Accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    // body: new URLSearchParams(new FormData(f))
-                    // body: new FormData(f)
                     body: JSON.stringify({
                         content: document.getElementById('content').value,
                         protocol: document.getElementById('protocol').value
@@ -90,8 +88,9 @@
                     alert('Error: ' + respJson.error)
                 }
                 else {
+                    qrcode = new QRCode("qrcode", { width: 256, height: 256 })
                     qrcode.makeCode(respJson.url)
-                    l.classList.toggle('avattu')
+                    l.classList.toggle('opened')
                     o.innerHTML = '<p lang="en">Scan the QR code with your wallet.</p>' +
                         '<p lang="en">Download the Procivis One wallet:</p>' + '<p>' +
                         '<a target="_blank" href="https://play.google.com/store/apps/details?id=ch.procivis.one.wallet.trial&pli=1">Android</a>' +
@@ -106,18 +105,18 @@
                     a.textContent = "Go to Sensotrend IPS Verifier"
                     o.appendChild(a)
 */
+                    const qrDiv = document.getElementById('qrcode')
                     const back = document.createElement('a')
                     back.lang = 'en'
                     back.textContent = "Return"
                     back.className = 'block'
                     back.onclick = () => { 
-                        qrcode.clear()
+                        qrDiv.innerHTML = ''
                         l.classList.toggle('opened')
                         f.style.display = 'block'
                         o.innerHTML = instructions
                     }
                     o.appendChild(back)
-                    const qrDiv = document.getElementById('qrcode')
                     const img = qrDiv.querySelector('img')
                     if (img) {
                         const a = document.createElement('a')
