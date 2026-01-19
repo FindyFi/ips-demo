@@ -197,7 +197,7 @@ app.get('/authcallback', async (req, res) => {
       return false
     }
     const patientData = await fhirResult.json()
-    const html = ```<!DOCTYPE html>
+    const html = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
@@ -210,7 +210,7 @@ app.get('/authcallback', async (req, res) => {
   <body>
     <pre></pre>
   </body>
-</html>```
+</html>`
     res.send(html)
     return true
   }
