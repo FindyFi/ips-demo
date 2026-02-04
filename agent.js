@@ -136,13 +136,13 @@ async function initCredentialSchema() {
     let credentialSchema = {
       name: config.vct_id,
       format: "SD_JWT_VC",
-      schemaType: "ProcivisOneSchema2024",
       schemaId: config.vct_url,
       externalSchema: true,
+      keyStorageSecurity: "BASIC",
+      requiresAppAttestation: false,
       revocationMethod: "NONE",
-      walletStorageType: "SOFTWARE",
-      layoutType: "CARD",
       allowSuspension: false,
+      layoutType: "CARD",
       claims: [],
       layoutProperties: {
         background: {
