@@ -86,8 +86,8 @@ app.post('/issue', async (req, res) => {
   }
   agent.schemas.credential.claims.forEach(claim => {
     let value
-    if (claim.key == 'fullData') {
-      value = content
+    if (claim.key == 'FullData') {
+      value = JSON.stringify(content)
     }
     else {
       value = claimValues[claim.key] || ''
