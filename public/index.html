@@ -84,8 +84,8 @@
             const ips_bundle = './IPS_IG-bundle-01.json'
 
             const f = document.getElementById('form')
-            const l = document.getElementById('box')
             const o = document.getElementById('instructions')
+            const qr = document.getElementById('qrcode')
             const optionsContainer = document.getElementById('options-container')
             const introCard = document.getElementById('intro-card')
             const instructions = o.innerHTML
@@ -110,8 +110,8 @@
                 }
                 else {
                     qrcode = new QRCode("qrcode", { width: 256, height: 256 })
+                    qr.style.display = 'block'
                     qrcode.makeCode(respJson.url)
-                    l.classList.toggle('opened')
                     o.innerHTML = '<p lang="en">Scan the QR code with your wallet.</p>' +
                         '<p lang="en">Download the Procivis One wallet:</p>' + '<p>' +
                         '<a target="_blank" href="https://play.google.com/store/apps/details?id=ch.procivis.one.wallet.trial&pli=1">Android</a>' +
@@ -133,9 +133,9 @@
                     back.className = 'block'
                     back.onclick = () => { 
                         qrDiv.innerHTML = ''
-                        l.classList.toggle('opened')
                         optionsContainer.style.display = ''
                         o.innerHTML = instructions
+                        qr.style.display = 'none'
                     }
                     o.appendChild(back)
                     const img = qrDiv.querySelector('img')
