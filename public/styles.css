@@ -1,109 +1,392 @@
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+
+/* ============================================
+   Base Styles
+   ============================================ */
 body {
   font-family: 'Neue Haas', 'Neue Haas Grotesk Display Pro', 'Neue Haas Text Pro', neue-haas, Helvetica, 'Open Sans', Arial, Verdana, Calibri, 'Gill Sans', 'Gill Sans MT', 'Trebuchet MS', sans-serif;
-  background-color: white;
-  color: #cc1237;
-  font-size: x-large;
-  line-height: 1.5;
-  margin: 0 auto;
-  max-width: 45em;
+  background-color: #f8f9fa;
+  color: #333;
+  font-size: large;
+  line-height: 1.6;
+  margin: 0;
   min-height: 100vh;
-  overflow: scroll;
-  padding: 2em 0 2em 0;
+  padding: 0;
 }
-h1 {
+
+/* ============================================
+   Header
+   ============================================ */
+header {
+  background: linear-gradient(135deg, #cc1237 0%, #a00e2c 100%);
+  color: white;
+  padding: 1.5em 1em;
+  text-align: center;
+}
+
+header h1 {
   font-family: "Hanken Grotesk", sans-serif;
   font-optical-sizing: auto;
-  font-size: 2em;
+  font-size: 1.8em;
   font-style: normal;
   font-weight: 800;
+  margin: 0;
+  color: white;
 }
-p {
-  margin: 1em 0 0 0;
+
+#box {
+  margin-bottom: 0.5em;
 }
-ul {
-  margin: 0 0 1em 2em;
-}
-table {
-  float: right;
-  width: 20em;
-}
-caption, th {
-  text-align: left;
-}
-caption {
-  font-weight: bold;
-}
-#qrcode {
-  border-radius: 25px;
-  height: 306px;
-  padding: 25px;
-  width: 306px;
-}
+
 #box img {
-  height: 128px;
-  width: 128px;
+  height: 80px;
+  width: 80px;
+  filter: brightness(0) invert(1);
 }
-#qrcode {
-  background-color: #FFF;
-  margin: 1em auto;
+
+/* ============================================
+   Main Content
+   ============================================ */
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5em 1em;
 }
-#qrcode a img {
-  border-width: 0;
+
+/* ============================================
+   Card Component
+   ============================================ */
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  transition: box-shadow 0.2s ease;
 }
-#instructions, form {
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.card-title {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #cc1237;
+  margin: 0 0 1em 0;
+  padding-bottom: 0.5em;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+/* ============================================
+   Introduction Section
+   ============================================ */
+#instructions {
   text-align: left;
-  margin: 1em auto;
-  padding: 0 1em;
+  margin: 0;
+  padding: 0;
   z-index: 2;
 }
-/*
-p+p {
-  text-indent: 1em;
+
+#instructions > p:first-child {
+  margin-top: 0;
 }
-*/
-q {
-  font-style: italic;
+
+p {
+  margin: 0.8em 0;
+  color: #444;
 }
-input {
-  font-size: larger;
+
+ul {
+  margin: 0.5em 0 1em 1.5em;
+  color: #444;
 }
-label, .block, button {
-  display: block;
+
+ul li {
+  margin-bottom: 0.3em;
 }
+
+/* ============================================
+   Options Container - Two Pathways
+   ============================================ */
+.options-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+  margin-top: 1.5em;
+}
+
+@media (max-width: 700px) {
+  .options-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.option-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.5em;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.option-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.option-label {
+  font-size: 0.75em;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5em;
+}
+
+.option-title {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 1.15em;
+  font-weight: 700;
+  color: #cc1237;
+  margin: 0 0 0.8em 0;
+}
+
+.option-description {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 1em;
+  flex-grow: 1;
+}
+
+/* ============================================
+   Epic Section Styles
+   ============================================ */
+.epic-section table {
+  width: 100%;
+  margin-top: 1em;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+.epic-section caption {
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 0.5em;
+  font-size: 0.9em;
+}
+
+.epic-section th, .epic-section td {
+  text-align: left;
+  padding: 0.5em 0.8em;
+  border-bottom: 1px solid #eee;
+}
+
+.epic-section th {
+  background: #f8f9fa;
+  color: #555;
+  font-weight: 600;
+}
+
+.epic-section tbody tr:hover {
+  background-color: #fef5f7;
+}
+
+.epic-section td {
+  color: #444;
+  font-family: 'Courier New', monospace;
+}
+
+/* ============================================
+   Form Styles
+   ============================================ */
+form {
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+
 label {
-  clear: both;
-  font-size: large;
-  font-weight: bold;
+  display: block;
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.5em;
 }
+
 .block label {
   display: inline;
 }
+
 textarea {
-  overflow: scroll;
-  white-space: nowrap;
-  width: 98%;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.8em;
+  font-size: 0.8em;
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-button {
-  background-color: #cc1237;
-  border-radius: 0.5em;
-  color: #FFF;
+
+textarea:focus {
+  outline: none;
+  border-color: #cc1237;
+  box-shadow: 0 0 0 3px rgba(204, 18, 55, 0.1);
+}
+
+input {
   font-size: larger;
-  margin: 1em 0;
-  padding: 0.5em;
 }
+
+/* ============================================
+   Button Styles
+   ============================================ */
+button {
+  display: block;
+  background: linear-gradient(135deg, #cc1237 0%, #a00e2c 100%);
+  border: none;
+  border-radius: 8px;
+  color: #FFF;
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 1em;
+  padding: 0.8em 1.5em;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  width: 100%;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(204, 18, 55, 0.3);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+#epic {
+  background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+}
+
+#epic:hover {
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+}
+
+/* ============================================
+   QR Code Section
+   ============================================ */
+#qrcode {
+  background-color: #FFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 1em auto;
+  padding: 25px;
+  width: fit-content;
+}
+
+#qrcode a img {
+  border-width: 0;
+  display: block;
+}
+
+/* ============================================
+   Links
+   ============================================ */
 a {
   color: #cc1237;
   cursor: pointer;
   text-decoration: underline;
+  transition: color 0.15s ease;
 }
+
+a:hover {
+  color: #a00e2c;
+}
+
 a.block {
+  display: block;
   margin-top: 1em;
+  text-align: center;
+  padding: 0.6em 1em;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
 }
+
+a.block:hover {
+  background: #f0f0f0;
+}
+
+/* ============================================
+   Divider
+   ============================================ */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5em 0;
+  color: #888;
+  font-size: 0.9em;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ddd;
+}
+
+.divider::before {
+  margin-right: 1em;
+}
+
+.divider::after {
+  margin-left: 1em;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
 footer {
-  color: #cc1237;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+  color: #666;
+  font-size: 0.85em;
   font-style: normal;
   font-weight: normal;
-  line-height: 1.25;
-  width: 100%;
+  line-height: 1.5;
+  padding: 1.5em 1em;
+  margin-top: 2em;
+  text-align: center;
+}
+
+footer p {
+  max-width: 900px;
+  margin: 0.5em auto;
+  color: #666;
+}
+
+footer a {
+  color: #cc1237;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+q {
+  font-style: italic;
+}
+
+/* Hide elements as needed */
+.hidden {
+  display: none !important;
 }

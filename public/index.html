@@ -26,33 +26,51 @@
             <h1 lang="en">International Patient Summary demo</h1>
         </header>
         <main>
-            <div id="instructions">
-                <p lang="en">This service allows you to obtain your <a href="https://international-patient-summary.net/" target="_blank" rel="noopener">International Patient Summary</a> as a digital credential in your wallet.</p>
-                <p lang="en">You can either</p>
-                <ul>
-                    <li lang="en">test the service using the pre-filled IPS bundle, or</li>
-                    <li lang="en">replace the content below with your an IPS bundle acquired elsewhere, or</li>
-                    <li lang="en">log in to <em>Epic on FHIR sandbox</em> to fetch your IPS data.</li>
-                </ul>
-                <table lang="en">
-                    <caption lang="en">Epic on FHIR sandbox <a href="https://fhir.epic.com/Documentation?docId=testpatients" target="_blank" rel="noopener">Test Users</a></caption>
-                    <thead>
-                        <tr><th lang="en">Username</th><th lang="en">Password</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td lang="en">fhircamila</td><td lang="en">epicepic1!</td></tr>
-                        <tr><td lang="en">fhirderrick</td><td lang="en">epicepic1!</td></tr>
-                        <tr><td lang="en">fhirdesiree</td><td lang="en">epicepic1!</td></tr>
-                    </tbody>
-                </table>
+            <!-- Introduction Card -->
+            <div class="card" id="intro-card">
+                <div id="instructions">
+                    <h2 class="card-title" lang="en">About This Service</h2>
+                    <p lang="en">This service allows you to obtain your <a href="https://international-patient-summary.net/" target="_blank" rel="noopener">International Patient Summary</a> as a digital credential in your wallet.</p>
+                    <p lang="en">Choose one of the options below to get started:</p>
+                </div>
             </div>
-            <form id="form">
-                <button type="button" id="epic"><span lang="en">Get your Epic Patient Data</span></button>
-                <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
-                <label for="content" lang="en">Content:</label>
-                <textarea name="content" id="content" rows="30" cols="100"></textarea>
-                <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
-            </form>
+
+            <!-- Two Options Container -->
+            <div class="options-container" id="options-container">
+                <!-- Option A: Epic Integration -->
+                <div class="option-card epic-section">
+                    <div class="option-label" lang="en">Option A</div>
+                    <h3 class="option-title" lang="en">Connect to Epic</h3>
+                    <p class="option-description" lang="en">Log in to the Epic on FHIR sandbox to automatically fetch your patient data.</p>
+                    <button type="button" id="epic"><span lang="en">Get your Epic Patient Data</span></button>
+                    <table lang="en">
+                        <caption lang="en">Sandbox <a href="https://fhir.epic.com/Documentation?docId=testpatients" target="_blank" rel="noopener">Test Users</a></caption>
+                        <thead>
+                            <tr><th lang="en">Username</th><th lang="en">Password</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td lang="en">fhircamila</td><td lang="en">epicepic1!</td></tr>
+                            <tr><td lang="en">fhirderrick</td><td lang="en">epicepic1!</td></tr>
+                            <tr><td lang="en">fhirdesiree</td><td lang="en">epicepic1!</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Option B: Manual Entry -->
+                <div class="option-card">
+                    <div class="option-label" lang="en">Option B</div>
+                    <h3 class="option-title" lang="en">Use IPS Bundle</h3>
+                    <p class="option-description" lang="en">Test using the pre-filled sample IPS bundle, or paste your own IPS data below.</p>
+                    <form id="form">
+                        <input type="hidden" name="protocol" id="protocol" value="OPENID4VCI_FINAL1">
+                        <label for="content" lang="en">IPS Bundle Content:</label>
+                        <textarea name="content" id="content" rows="12" cols="50"></textarea>
+                        <button type="button" id="load"><span lang="en">Create Digital Credential</span></button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- QR Code Display Area -->
             <div id="qrcode"></div>
         </main>
         <footer>
@@ -68,6 +86,8 @@
             const f = document.getElementById('form')
             const l = document.getElementById('box')
             const o = document.getElementById('instructions')
+            const optionsContainer = document.getElementById('options-container')
+            const introCard = document.getElementById('intro-card')
             const instructions = o.innerHTML
 
             document.getElementById('load').addEventListener('click', async () => {
@@ -114,7 +134,7 @@
                     back.onclick = () => { 
                         qrDiv.innerHTML = ''
                         l.classList.toggle('opened')
-                        f.style.display = 'block'
+                        optionsContainer.style.display = ''
                         o.innerHTML = instructions
                     }
                     o.appendChild(back)
@@ -125,7 +145,7 @@
                         qrDiv.appendChild(a)
                         a.appendChild(img)
                     }
-                    f.style.display = 'none'
+                    optionsContainer.style.display = 'none'
                 }
             })
 
