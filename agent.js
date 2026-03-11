@@ -120,7 +120,9 @@ async function initCredentialSchema() {
 
   const list = await agent.getCredentialSchemas({
     name: config.vct_id,
-    format: "SD_JWT_VC",
+    "formats[]": "SD_JWT_VC",
+    sort: 'createdDate',
+    sortDirection: 'DESC',
   });
   const id = list?.values?.at(0)?.id || null; // use the first returned
   let schema = {};
@@ -129,7 +131,7 @@ async function initCredentialSchema() {
   } else {
     const oldList = await agent.getCredentialSchemas({
       schemaId: config.vct_url,
-      format: "SD_JWT_VC",
+      "formats[]": "SD_JWT_VC",
     });
     for (const item of oldList?.values || []) {
       await agent.deleteCredentialSchema(item.id);
