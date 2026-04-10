@@ -179,7 +179,8 @@ app.get('/authcallback', async (req, res) => {
       res.status(500).send('Authorization failed!')
       return false
     }
-    const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
+    // const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
+    const patient = tokenResponse.epic.dstu2.patient
     const access_token = tokenResponse.access_token
     const ipsUrl = config.epic_api_endpoint + '/FHIR/R4/Patient/' +
       encodeURIComponent(patient) +
