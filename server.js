@@ -100,7 +100,7 @@ app.post('/issue', async (req, res) => {
       })
     }
   })
-  console.log(JSON.stringify(credentialParams, null, 2))
+  // console.log(JSON.stringify(credentialParams, null, 2))
   const offer = await agent.issueCredential(credentialParams)
   if (offer) {
     res.json(offer)
@@ -175,13 +175,12 @@ app.get('/authcallback', async (req, res) => {
       return false
     }
     const tokenResponse = await result.json()
-    if (!tokenResponse.access_token || !tokenResponse.patient) {
+    const patient = tokenResponse['__epic.dstu2.patient'] || tokenResponse.patient
+    const access_token = tokenResponse.access_token
+    if (!access_token || !patient) {
       res.status(500).send('Authorization failed!')
       return false
     }
-    // const patient = tokenResponse.patient // tokenResponse.epic.dstu2.patient
-    const patient = tokenResponse.epic.dstu2.patient
-    const access_token = tokenResponse.access_token
     const ipsUrl = config.epic_api_endpoint + '/FHIR/R4/Patient/' +
       encodeURIComponent(patient) +
       '/$summary?profile=' +
