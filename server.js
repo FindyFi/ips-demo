@@ -79,8 +79,8 @@ app.post('/issue', async (req, res) => {
   }
   const credentialParams = {
     credentialSchemaId: agent.schemas.credential.id,
-    issuerDid: agent.dids[0],
-    issuerKey: agent.keys[0],
+    issuerDid: agent.dids[0].did,
+    issuerKey: agent.dids[0].keyId,
     protocol: req.body.protocol || 'OPENID4VCI_FINAL1',
     claimValues: []
   }
@@ -112,7 +112,7 @@ app.post('/issue', async (req, res) => {
 app.post('/verify', async (req, res) => {
   const proofParams = {
     proofSchemaId: agent.schemas.proof.id,
-    verifierDid: agent.dids[0],
+    verifierDid: agent.dids[0].did,
     protocol: req.body.protocol || 'OPENID4VP_FINAL1'
   }
   const request = await agent.requestCredential(proofParams)

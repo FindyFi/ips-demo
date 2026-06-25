@@ -10,7 +10,7 @@ const config = {
   client_id: process.env.IPS_CLIENT_ID || "",
   client_secret: process.env.IPS_CLIENT_SECRET || "",
   server_host: process.env.IPS_SERVER_HOST || "localhost",
-  issuer_url: process.env.IPS_ISSUER_HOST || "ips-demo.trustregistry.eu",
+  issuer_url: process.env.IPS_ISSUER_HOST || "ips.digicredential.eu",
   vct_id: process.env.IPS_VCT_ID || "https://ips.todiste.fi/credentials/v1/PatientSummary",
   vct_url: process.env.IPS_VCT_URL || "https://ips.todiste.fi/credentials/v1/PatientSummary.json",
 };
@@ -39,110 +39,125 @@ agent.schemas.proof = await initVerificationSchema();
 export { agent };
 
 async function initOrg() {
-  const list = await agent.getOrganizations({ name: config.issuer_url });
-  let o;
-  if (list && list.values && list.values.length > 0) {
-    o = list.values.at(0);
-  } else if (typeof list === typeof [] && list.length > 0) {
-    o = list.at(0);
-  }
-  if (!o) {
-    o = await agent.createOrganization({ name: config.issuer_url });
-    if (!o) {
+  const list = await agent.getOrganizations({sort: 'createdDate', sortDirection: 'DESC'})
+  const orgs = list?.values || (Array.isArray(list) ? list : [])
+
+  if (orgs.length === 0) {
+    const created = await agent.createOrganization({})
+    if (!created) {
       throw new Error(`Failed to initialize organization)`);
     }
-    o.name = config.issuer_url;
+    console.log('Created organisation:', created.id)
+    return { id: created.id }
   }
-  return o;
+
+  for (const org of orgs) {
+    const dids = await agent.getDIDs({
+      organisationId: org.id,
+      "didMethods[]": 'WEB',
+      name: config.issuer_url
+    })
+    if (dids?.values?.length > 0) {
+      // console.log(`Found organisation ${org.id} with DID "${config.issuer_url}"`)
+      return org
+    }
+  }
+  return orgs[0]
 }
 
 async function initKey() {
-  let key = {};
-  const list = await agent.getKeys({ name: config.project_name });
-  const id = list?.values?.at(0)?.id; // use the first returned
+  let key = {}
+  const list = await agent.getKeys({ name: config.issuer_url, sort: 'createdDate', sortDirection: 'DESC' })
+  const id = list?.values?.at(0)?.id // use the first returned
   if (id) {
-    key = list?.values?.at(0);
-  } else {
+    key = list?.values?.at(0)
+  }
+  else {
     const data = {
-      keyType: "ECDSA",
+      keyType: 'ECDSA',
       keyParams: {},
-      name: config.project_name,
-      storageType: "INTERNAL",
-      storageParams: {},
-    };
-    key = await agent.createKey(data);
+      name: config.issuer_url,
+      storageType: 'INTERNAL',
+      storageParams: {}
+    }
+    key = await agent.createKey(data)
     if (!key) {
       throw new Error(`Failed to initialize key)`);
     }
-    console.log("New key: ", key);
+    console.log('New key: ', key)
   }
-  return key?.id;
+  return key?.id
 }
 
-async function initDID(key) {
+async function initDID(url) {
   const listParams = {
-    "didMethods[]": "WEB",
-    name: config.issuer_url,
-    sort: "createdDate",
-    sortDirection: "DESC",
-  };
-  const list = await agent.getDIDs(listParams);
-  const id = list?.values?.at(0)?.id; // use the first returned
+    "didMethods[]": 'WEB',
+    name: url,
+    sort: 'createdDate',
+    sortDirection: 'DESC'
+  }
+  const list = await agent.getDIDs(listParams)
+  const id = list?.values?.at(0)?.id // use the first returned
+  let identifier, keyId
   if (id) {
-    const identifier = await agent.getDID(id);
-    // console.log(JSON.stringify(identifier, null, 2))
-    return identifier?.did?.id;
-  } else {
+    identifier = await agent.getDID(id)
+    keyId = identifier?.did?.keys?.assertionMethod?.at(0)?.id
+  }
+  else {
+    keyId = await initKey()
     const data = {
-      name: config.issuer_url,
-      method: "WEB",
+      name: url,
+      method: 'WEB',
       keys: {
-        authentication: [key],
-        assertionMethod: [key],
-        keyAgreement: [key],
-        capabilityInvocation: [key],
-        capabilityDelegation: [key],
+        authentication: [keyId],
+        assertionMethod: [keyId],
+        keyAgreement: [keyId],
+        capabilityInvocation: [keyId],
+        capabilityDelegation: [keyId]
       },
       params: {
-        externalHostingUrl: `https://${config.issuer_url}`,
-      },
-    };
-    const identifier = await agent.createDID(data);
-    if (!identifier) {
-      throw new Error(`Failed to initialize DID)`);
+        externalHostingUrl: `https://${url}`
+      }
     }
-
-    return identifier?.did?.id;
+    identifier = await agent.createDID(data)
+    if (!identifier?.id) {
+      throw new Error(`Could not create DID "${url}".`)
+    }
   }
+  return { id: identifier?.id, did: identifier?.did?.id, keyId }
 }
 
 async function initCredentialSchema() {
-
-  const list = await agent.getCredentialSchemas({
+  const searchParams = {
     name: config.vct_id,
     "formats[]": "SD_JWT_VC",
     sort: 'createdDate',
-    sortDirection: 'DESC',
-  });
-  const id = list?.values?.at(0)?.id || null; // use the first returned
-  let schema = {};
-  if (id) {
-    schema = await agent.getCredentialSchema(id);
-  } else {
+    sortDirection: 'DESC'
+  }
+  const list = await agent.getCredentialSchemas(searchParams)
+  const id = list?.values?.at(0)?.id // use the first returned
+  let schema = {}
+  if (0 && id) {
+    schema = await agent.getCredentialSchema(id)
+  }
+  else {
     const oldList = await agent.getCredentialSchemas({
-      schemaId: config.vct_url,
-      "formats[]": "SD_JWT_VC",
+      schemaId: config.vct_url
     });
     for (const item of oldList?.values || []) {
       await agent.deleteCredentialSchema(item.id);
     }
     let credentialSchema = {
       name: config.vct_id,
-      format: "SD_JWT_VC",
-      schemaId: config.vct_url,
-      requiresWalletInstanceAttestation: false,
-      revocationMethod: "NONE",
+      formats: [
+        {
+          format: "SD_JWT_VC",
+          schemaId: config.vct_url,
+        }
+      ],
+      allowRevocation: false,
       allowSuspension: false,
+      requiresWalletInstanceAttestation: false,
       layoutType: "CARD",
       claims: [],
       layoutProperties: {
@@ -162,10 +177,15 @@ async function initCredentialSchema() {
     const claims = vctJson.PatientSummary_SD_JWT_VC.claims;
     for (const claim of claims) {
       credentialSchema.claims.push({
-        "key": claim.path[0],
-        "required": false,
-        "datatype": "STRING",
-        "array": false
+        key: claim.path[0],
+        required: false,
+        datatype: "STRING",
+        array: false,
+        translations: {
+          name: {
+            en: claim?.display?.at(0).label || claim.path[0]
+          }
+        }
       });      
     }
     const res = await agent.createCredentialSchema(credentialSchema);
@@ -180,6 +200,8 @@ async function initCredentialSchema() {
 async function initVerificationSchema() {
   const list = await agent.getVerificationSchemas({
     name: agent.schemas.credential.name,
+    sort: 'createdDate',
+    sortDirection: 'DESC',
   });
   const pid = list?.values?.at(0)?.id; // use the first returned
   let schema = {};
