@@ -137,7 +137,7 @@ async function initCredentialSchema() {
   const list = await agent.getCredentialSchemas(searchParams)
   const id = list?.values?.at(0)?.id // use the first returned
   let schema = {}
-  if (0 && id) {
+  if (id) {
     schema = await agent.getCredentialSchema(id)
   }
   else {
