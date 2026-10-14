@@ -59,7 +59,7 @@ app.post('/issue', async (req, res) => {
               events.push(event.code.coding.at(0).code)
             }
           }
-          claimValues['event'] = events.join('; ')
+          claimValues['Event'] = events.join('; ')
         }
         if (comp.title) {
           claimValues['Title'] = comp.title

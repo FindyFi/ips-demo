@@ -197,40 +197,45 @@ async function initCredentialSchema() {
   return schema;
 }
 
+// Requests only the FullData claim (the whole IPS Bundle as JSON). The issuer
+// leaves out claims that have no value (e.g. IPS sections the patient doesn't
+// have), so requiring other claims would make most credentials unusable.
 async function initVerificationSchema() {
+  const cs = agent.schemas.credential;
+  const name = `${cs.name}-FullData`;
   const list = await agent.getVerificationSchemas({
-    name: agent.schemas.credential.name,
+    name,
     sort: 'createdDate',
     sortDirection: 'DESC',
   });
-  const pid = list?.values?.at(0)?.id; // use the first returned
-  let schema = {};
-  if (pid) {
-    schema = await agent.getVerificationSchema(pid);
-  } else {
-    const cs = agent.schemas.credential;
-    const proofSchema = {
-      name: cs.name,
-      expireDuration: 0,
-      proofInputSchemas: [
-        {
-          credentialSchemaId: cs.id,
-          claimSchemas: [],
-        },
-      ],
-    };
-    cs.claims.forEach((claim) => {
-      proofSchema.proofInputSchemas[0].claimSchemas.push({
-        id: claim.id,
-        required: true,
-      });
-    });
-    schema = await agent.createVerificationSchema(proofSchema);
-    if (!schema) {
-      throw new Error(`Failed to initialize verification schema)`);
+  // Reuse an existing proof schema only if it points to the current credential schema
+  for (const item of list?.values || []) {
+    const schema = await agent.getVerificationSchema(item.id);
+    const csIds = (schema?.proofInputSchemas || []).map((input) => input?.credentialSchema?.id);
+    if (csIds.includes(cs.id)) {
+      return schema;
     }
   }
-  return schema;
+  const fullData = cs.claims.find((claim) => claim.key === 'FullData');
+  if (!fullData) {
+    throw new Error(`Credential schema ${cs.id} has no FullData claim`);
+  }
+  const proofSchema = {
+    name,
+    expireDuration: 0,
+    proofInputSchemas: [
+      {
+        credentialSchemaId: cs.id,
+        claimSchemas: [{ id: fullData.id, required: true }],
+      },
+    ],
+  };
+  const res = await agent.createVerificationSchema(proofSchema);
+  if (!res?.id) {
+    throw new Error(`Failed to initialize verification schema`);
+  }
+  console.log('Created proof schema:', res.id)
+  return await agent.getVerificationSchema(res.id);
 }
 
 async function clearSchemas() {
