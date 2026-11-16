@@ -4,6 +4,8 @@ Demo: Issue International Patient Summary credential using Procivis One Core.
 
 Based on [Procivis One Core API Reference](https://docs.procivis.ch/reference/core/procivis-one-core-api).
 
+Requires Procivis One Core v1.90 (through [credential-agent-procivis](https://www.npmjs.com/package/credential-agent-procivis) 0.1) and Node.js 22 or later.
+
 Test a [running instance](https://ips-demo.trustregistry.eu/) with the [Procivis Wallet](https://www.procivis.ch/components/procivis-one-wallet).
 
 ## Environment variables

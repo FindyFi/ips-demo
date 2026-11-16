@@ -17,11 +17,17 @@ app.use(express.json({ limit: '1024mb' }))
 app.use(express.static('public'))
 
 app.post('/issue', async (req, res) => {
-  if (!req.body.content) {
+  if (!req.body?.content) {
     res.status(400).json({ error: 'Missing required content' })
     return false
   }
-  const content = JSON.parse(req.body.content)
+  let content
+  try {
+    content = JSON.parse(req.body.content)
+  } catch {
+    res.status(400).json({ error: 'Invalid IPS bundle: content is not valid JSON' })
+    return false
+  }
   const claimValues = {}
   if (content && content.entry && Array.isArray(content.entry)) {
     for (const entry of content.entry) {
@@ -64,7 +70,7 @@ app.post('/issue', async (req, res) => {
         if (comp.title) {
           claimValues['Title'] = comp.title
         }
-        for (const section of comp.section) {
+        for (const section of comp.section || []) {
           if (!section.code || !section.text || !section.text.div) {
             continue
           }
@@ -79,7 +85,7 @@ app.post('/issue', async (req, res) => {
   }
   const credentialParams = {
     credentialSchemaId: agent.schemas.credential.id,
-    issuerDid: agent.dids[0].did,
+    issuer: agent.dids[0].id,
     issuerKey: agent.dids[0].keyId,
     protocol: req.body.protocol || 'OPENID4VCI_FINAL1',
     claimValues: []
@@ -101,7 +107,11 @@ app.post('/issue', async (req, res) => {
     }
   })
   // console.log(JSON.stringify(credentialParams, null, 2))
-  const offer = await agent.issueCredential(credentialParams)
+  // issueCredential() throws if creating the credential fails
+  const offer = await agent.issueCredential(credentialParams).catch((error) => {
+    console.error(error.message)
+    return false
+  })
   if (offer) {
     res.json(offer)
     return true
@@ -112,10 +122,14 @@ app.post('/issue', async (req, res) => {
 app.post('/verify', async (req, res) => {
   const proofParams = {
     proofSchemaId: agent.schemas.proof.id,
-    verifierDid: agent.dids[0].did,
+    verifier: agent.dids[0].id,
     protocol: req.body.protocol || 'OPENID4VP_FINAL1'
   }
-  const request = await agent.requestCredential(proofParams)
+  // requestCredential() throws if creating or sharing the proof request fails
+  const request = await agent.requestCredential(proofParams).catch((error) => {
+    console.error(error.message)
+    return false
+  })
   if (request) {
     res.json(request)
     return true
