@@ -101,7 +101,11 @@ app.post('/issue', async (req, res) => {
     }
   })
   // console.log(JSON.stringify(credentialParams, null, 2))
-  const offer = await agent.issueCredential(credentialParams)
+  // issueCredential() throws if creating the credential fails
+  const offer = await agent.issueCredential(credentialParams).catch((error) => {
+    console.error(error.message)
+    return false
+  })
   if (offer) {
     res.json(offer)
     return true
@@ -115,7 +119,11 @@ app.post('/verify', async (req, res) => {
     verifier: agent.dids[0].id,
     protocol: req.body.protocol || 'OPENID4VP_FINAL1'
   }
-  const request = await agent.requestCredential(proofParams)
+  // requestCredential() throws if creating or sharing the proof request fails
+  const request = await agent.requestCredential(proofParams).catch((error) => {
+    console.error(error.message)
+    return false
+  })
   if (request) {
     res.json(request)
     return true
