@@ -17,11 +17,17 @@ app.use(express.json({ limit: '1024mb' }))
 app.use(express.static('public'))
 
 app.post('/issue', async (req, res) => {
-  if (!req.body.content) {
+  if (!req.body?.content) {
     res.status(400).json({ error: 'Missing required content' })
     return false
   }
-  const content = JSON.parse(req.body.content)
+  let content
+  try {
+    content = JSON.parse(req.body.content)
+  } catch {
+    res.status(400).json({ error: 'Invalid IPS bundle: content is not valid JSON' })
+    return false
+  }
   const claimValues = {}
   if (content && content.entry && Array.isArray(content.entry)) {
     for (const entry of content.entry) {
@@ -64,7 +70,7 @@ app.post('/issue', async (req, res) => {
         if (comp.title) {
           claimValues['Title'] = comp.title
         }
-        for (const section of comp.section) {
+        for (const section of comp.section || []) {
           if (!section.code || !section.text || !section.text.div) {
             continue
           }
