@@ -141,23 +141,30 @@ async function initCredentialSchema() {
     schema = await agent.getCredentialSchema(id)
   }
   else {
+    // Remove older schemas for the same VCT. Check each one before deleting, so
+    // an ignored filter can't make this delete every schema in the organisation.
     const oldList = await agent.getCredentialSchemas({
-      schemaId: config.vct_url
+      "ecosystemSchemaIds[]": config.vct_url
     });
     for (const item of oldList?.values || []) {
-      await agent.deleteCredentialSchema(item.id);
+      const old = await agent.getCredentialSchema(item.id);
+      if (old?.formats?.some((f) => f.ecosystemSchemaId === config.vct_url)) {
+        await agent.deleteCredentialSchema(item.id);
+      }
     }
     let credentialSchema = {
       name: config.vct_id,
       formats: [
         {
           format: "SD_JWT_VC",
-          schemaId: config.vct_url,
+          ecosystemSchemaId: config.vct_url,
         }
       ],
       allowRevocation: false,
       allowSuspension: false,
-      requiresWalletInstanceAttestation: false,
+      walletAttestation: {
+        requireInstanceAttestation: false,
+      },
       layoutType: "CARD",
       claims: [],
       layoutProperties: {
